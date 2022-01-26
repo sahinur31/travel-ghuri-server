@@ -1,9 +1,10 @@
 const express = require("express");
 const { MongoClient } = require("mongodb");
-const ObjectId = require("mongodb").ObjectId;
+// const ObjectId = require("mongodb").ObjectId;
 
 const cors = require("cors");
 require("dotenv").config();
+const fileUpload = require('express-fileupload');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -11,6 +12,9 @@ const port = process.env.PORT || 5000;
 // middleware
 app.use(cors());
 app.use(express.json());
+app.use(fileUpload());
+
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.5bgr9.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 // console.log(uri);
 const client = new MongoClient(uri, {
@@ -56,28 +60,7 @@ async function run() {
                 res.json(result);
             }
         })
-        // joining in te event
-        app.put('/join/:email', async (req, res) => {
-            const title = req.body
-            const email = req.params.email
-            const user = await usersCollection.findOne({ email: email })
-            console.log('title', title, email, user)
-            if (!user.events) {
-                const filter = { email: email };
-                const options = { upsert: true };
-                const updateDoc = { $set: { events: title } };
-                const result = await usersCollection.updateOne(filter, updateDoc, options);
-                res.send(result)
-            } else {
-                const filter = { email: email };
-                const event = { events: [...user.events, ...title] }
-                const updateDoc = { $set: event };
-                const options = { upsert: true };
-                const result = await usersCollection.updateOne(filter, updateDoc, options);
-                res.send(result)
-            }
-
-        })
+       
         // get user api
         app.get('/users', async (req, res) => {
             const cursor = usersCollection.find({});
