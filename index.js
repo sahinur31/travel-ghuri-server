@@ -171,6 +171,20 @@ async function run() {
         res.send(review);
       });
 
+      //update review status 
+    app.put('/review/:id' , async(req , res) => {
+        const id = req.params.id;
+        const updatedOrders = req.body;
+        const query = {_id:ObjectId(id)};
+        const options = { upsert : true}
+        const updatedDoc = {
+            $set: {  
+              status:updatedOrders.status
+            },
+        };
+        const result =await reviewsCollection.updateOne(query,updatedDoc,options)
+        res.json(result)
+    })
 
 
         // app.post('/rider', async (req, res) => {
