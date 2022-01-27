@@ -1,6 +1,6 @@
 const express = require("express");
 const { MongoClient } = require("mongodb");
-// const ObjectId = require("mongodb").ObjectId;
+const ObjectId = require("mongodb").ObjectId;
 
 const cors = require("cors");
 require("dotenv").config();
@@ -29,6 +29,8 @@ async function run() {
         await client.connect();
     const database = client.db("travel-agency");
     const usersCollection = client.db("travel-agency").collection("users");
+    const blogsCollection = client.db("travel-agency").collection("blogs");
+    const reviewsCollection = client.db("travel-agency").collection("reviews");
         // save user api
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -105,7 +107,69 @@ async function run() {
             console.log('admin : ', isAdmin);
             res.json(isAdmin);
         })
-        
+        // save blogs api
+        app.post('/blogs', async (req, res) => {
+            const data = req.body;
+            const result = await blogsCollection.insertOne(data);
+
+            res.json(result);
+        })
+        // blog collection
+        app.get("/blogs", async (req, res) => {
+            const cursor = blogsCollection.find({});
+            const blogs = await cursor.toArray();
+            res.send(blogs);
+        });
+        app.delete('/blogs/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await blogsCollection.deleteOne(query);
+            res.send(result);
+        })
+        // update
+      app.put('/blogs/:id', async (req, res) => {
+        const id = req.params.id;
+        const updatedProduct = req.body;
+        const filter = { _id: ObjectId(id) };
+        const options = { upsert: true };
+        const updateDoc = {
+          $set: {
+              name: updatedProduct.name,
+              price: updatedProduct.price,
+              quantity: updatedProduct.quantity
+          },
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options)
+      console.log('updating', id)
+      res.json(result)
+    })
+    // GET API for show data
+    app.get("/blogs", async (req, res) => {
+        const cursor = blogsCollection.find({});
+        const blog = await cursor.toArray();
+        res.send(blog);
+      });
+     //GET Dynamic (blog)
+     app.get('/blogs/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const result = await blogsCollection.findOne(query);
+        res.send(result);
+    });
+    //post api for add review insert
+    app.post("/review", async (req, res) => {
+        const review = req.body;
+        console.log("hit the post api", review);
+        const result = await reviewsCollection.insertOne(review);
+        console.log(result);
+        res.json(result);
+      });
+      // GET API for show review
+      app.get("/review", async (req, res) => {
+        const cursor = reviewsCollection.find({});
+        const review = await cursor.toArray();
+        res.send(review);
+      });
 
 
 
