@@ -126,23 +126,7 @@ async function run() {
             const result = await blogsCollection.deleteOne(query);
             res.send(result);
         })
-        // update
-      app.put('/blogs/:id', async (req, res) => {
-        const id = req.params.id;
-        const updatedProduct = req.body;
-        const filter = { _id: ObjectId(id) };
-        const options = { upsert: true };
-        const updateDoc = {
-          $set: {
-              name: updatedProduct.name,
-              price: updatedProduct.price,
-              quantity: updatedProduct.quantity
-          },
-      };
-      const result = await userCollection.updateOne(filter, updateDoc, options)
-      console.log('updating', id)
-      res.json(result)
-    })
+       
     // GET API for show data
     app.get("/blogs", async (req, res) => {
         const cursor = blogsCollection.find({});
@@ -197,6 +181,7 @@ async function run() {
      app.put('/blogs/:id', async (req, res) => {
         const id = req.params.id;
         const updatedBlogs = req.body;
+        console.log(updatedBlogs);
         const filter = { _id: ObjectId(id) };
         const options = { upsert: true };
         const updateDoc = {
